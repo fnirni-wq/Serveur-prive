@@ -1,0 +1,70 @@
+
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+
+local player = Players.LocalPlayer
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "AutoRejoinUI"
+gui.ResetOnSpawn = false
+gui.Parent = player:WaitForChild("PlayerGui")
+
+local main = Instance.new("Frame")
+main.Size = UDim2.new(0, 160, 0, 90)
+main.Position = UDim2.new(0.5, -80, 0.4, 0)
+main.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+main.Active = true
+main.Parent = gui
+
+local button = Instance.new("TextButton")
+button.Size = UDim2.new(1, -20, 0, 45)
+button.Position = UDim2.new(0, 10, 0, 10)
+button.Text = "Auto-Rejoin : OFF"
+button.TextColor3 = Color3.new(1, 1, 1)
+button.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+button.Parent = main
+
+local enabled = false
+
+button.MouseButton1Click:Connect(function()
+    enabled = not enabled
+
+    button.Text = enabled and "Auto-Rejoin : ON"
+        or "Auto-Rejoin : OFF"
+
+    button.BackgroundColor3 = enabled
+        and Color3.fromRGB(0, 180, 0)
+        or Color3.fromRGB(200, 0, 0)
+end)
+
+-- Déplacement tactile
+local dragging = false
+local dragStart
+local startPos
+
+main.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = main.Position
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if dragging and input.UserInputType == Enum.UserInputType.Touch then
+        local delta = input.Position - dragStart
+
+        main.Position = UDim2.new(
+            startPos.X.Scale,
+            startPos.X.Offset + delta.X,
+            startPos.Y.Scale,
+            startPos.Y.Offset + delta.Y
+        )
+    end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.Touch then
+        dragging = false
+    end
+end)
